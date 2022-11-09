@@ -27,6 +27,7 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_startup_system(setup_system)
+        .add_startup_system_to_stage(StartupStage::PostStartup, player_spawn_system)
         .run();
 }
 
@@ -47,9 +48,15 @@ fn setup_system(
     // size window
     let win_size = WinSize { w: win_w, h: win_h };
     commands.insert_resource(win_size);
+}
 
-    // - add player
-    let bottom = -win_h / 2.;
+// - add player
+fn player_spawn_system(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    win_size: Res<WinSize>,
+) {
+    let bottom = -win_size.h / 2.;
     commands.spawn_bundle(SpriteBundle {
         texture: asset_server.load(PLAYER_SPRITE),
         transform: Transform {
