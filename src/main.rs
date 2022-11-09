@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 // region: -- Asset constants
 // --player
-const PLAYER_SPRITE: &str = "player_a_01.png";
+const PLAYER_SPRITE: &str = "black_jesus.png";
 const PLAYER_SIZE: (f32, f32) = (144., 75.);
 
 // --enemy
