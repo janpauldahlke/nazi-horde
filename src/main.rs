@@ -3,6 +3,7 @@
 use bevy::prelude::*;
 use player::PlayerPlugin;
 
+mod components;
 mod player;
 
 // region: --- Asset constants
@@ -11,6 +12,9 @@ const PLAYER_SIZE: (f32, f32) = (144., 177.);
 const SPRITE_SCALE: f32 = 0.5;
 const ENEMY_SPRITE: &str = "enemy_a_01.png";
 // endregion: --- Asset constants
+
+// region: --- Game constants
+// endregion: --- Game constants
 
 // region: --- Resources
 pub struct WinSize {
