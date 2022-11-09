@@ -14,13 +14,17 @@ pub struct WinSize {
     pub w: f32,
     pub h: f32,
 }
+
+pub struct GameTextures {
+    player: Handle<Image>,
+}
 // endregion: --- Resource
 
 fn main() {
     App::new()
         .insert_resource(ClearColor(Color::rgb(0.04, 0.04, 0.04)))
         .insert_resource(WindowDescriptor {
-            title: "Nazi Horde".to_string(),
+            title: "<---- BJ vs. infinite Hitlers ---->".to_string(),
             width: 1920.0,
             height: 1080.0,
             ..Default::default()
@@ -42,23 +46,28 @@ fn setup_system(
     //capture window size
     let window = windows.get_primary_mut().unwrap();
     let (win_w, win_h) = (window.width(), window.height());
-
     //position window
     window.set_position(IVec2::new(2780, 4900));
     // size window
     let win_size = WinSize { w: win_w, h: win_h };
     commands.insert_resource(win_size);
+
+    // add GameTextures resource
+    let game_textures = GameTextures {
+        player: asset_server.load(PLAYER_SPRITE),
+    };
+    commands.insert_resource(game_textures);
 }
 
 // - add player
 fn player_spawn_system(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    game_textures: Res<GameTextures>,
     win_size: Res<WinSize>,
 ) {
     let bottom = -win_size.h / 2.;
     commands.spawn_bundle(SpriteBundle {
-        texture: asset_server.load(PLAYER_SPRITE),
+        texture: game_textures.player.clone(),
         transform: Transform {
             translation: Vec3::new(0., bottom + PLAYER_SIZE.1 / 2. * SPRITE_SCALE + 5., 10.),
             scale: Vec3::new(SPRITE_SCALE, SPRITE_SCALE, 1.),
