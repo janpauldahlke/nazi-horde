@@ -16,8 +16,8 @@ fn main() {
         .insert_resource(ClearColor(Color::rgb(0.04, 0.04, 0.04)))
         .insert_resource(WindowDescriptor {
             title: "Nazi Horde".to_string(),
-            width: 598.0,
-            height: 676.0,
+            width: 1920.0,
+            height: 1080.0,
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
@@ -25,14 +25,27 @@ fn main() {
         .run();
 }
 
-fn setup_system(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn setup_system(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut windows: ResMut<Windows>,
+) {
     // - Camera
     commands.spawn_bundle(Camera2dBundle::default()); //https://bevyengine.org/learn/book/migration-guides/0.7-0.8/
-                                                      // -Rectangle
+
+    //capture window size
+    let window = windows.get_primary_mut().unwrap();
+    let (win_w, win_h) = (window.width(), window.height());
+
+    //position window
+    window.set_position(IVec2::new(1920, 1080));
+
+    // - add player
+    let bottom = -win_h / 2.;
     commands.spawn_bundle(SpriteBundle {
-        sprite: Sprite {
-            color: Color::rgb(0.25, 0.25, 0.75),
-            custom_size: Some(Vec2::new(150., 150.)),
+        texture: asset_server.load(PLAYER_SPRITE),
+        transform: Transform {
+            translation: Vec3::new(0., bottom + PLAYER_SIZE.1 / 2. + 5., 10.),
             ..Default::default()
         },
         ..Default::default()
