@@ -1,6 +1,7 @@
 #![allow(unused)] // silence warnings while dev // comment out later
 
 use bevy::prelude::*;
+use components::{Movable, Player, Velocity};
 use player::PlayerPlugin;
 
 mod components;
@@ -9,8 +10,12 @@ mod player;
 // region: --- Asset constants
 const PLAYER_SPRITE: &str = "black_jesus.png";
 const PLAYER_SIZE: (f32, f32) = (144., 177.);
+const PLAYER_LASER_SPRITE: &str = "player_laser.png";
+const PLAYER_LASER_SIZE: (f32, f32) = (9., 54.);
+
 const SPRITE_SCALE: f32 = 0.5;
-const ENEMY_SPRITE: &str = "enemy_a_01.png";
+
+//const ENEMY_SPRITE: &str = "enemy_a_01.png";
 // endregion: --- Asset constants
 
 // region: --- Game constants
@@ -26,6 +31,7 @@ pub struct WinSize {
 
 pub struct GameTextures {
     player: Handle<Image>,
+    player_laser: Handle<Image>,
 }
 // endregion: --- Resource
 
@@ -41,6 +47,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(PlayerPlugin)
         .add_startup_system(setup_system)
+        .add_system(movable_system)
         .run();
 }
 
@@ -64,6 +71,32 @@ fn setup_system(
     // add GameTextures resource
     let game_textures = GameTextures {
         player: asset_server.load(PLAYER_SPRITE),
+        player_laser: asset_server.load(PLAYER_LASER_SPRITE),
     };
     commands.insert_resource(game_textures);
+}
+
+fn movable_system(
+    mut commands: Commands,
+    win_size: Res<WinSize>,
+    mut query: Query<(Entity, &Velocity, &mut Transform, &Movable)>,
+) {
+    for (entity, velocity, mut transform, movable) in query.iter_mut() {
+        let translation = &mut transform.translation;
+        translation.x += velocity.x * TIME_STEP * BASE_SPEED;
+        translation.y += velocity.y * TIME_STEP * BASE_SPEED;
+
+        if (movable.auto_despawn) {
+            // --- despwan lasers out of screen
+            const MARGIN: f32 = 200.;
+
+            if translation.y > win_size.h / 2. + MARGIN
+                || translation.y < -win_size.h / 2. + MARGIN
+                || translation.x > win_size.h / 2. + MARGIN
+                || translation.x < -win_size.h / 2. + MARGIN
+            {
+                commands.entity(entity).despawn();
+            }
+        }
+    }
 }
