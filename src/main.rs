@@ -14,6 +14,8 @@ const ENEMY_SPRITE: &str = "enemy_a_01.png";
 // endregion: --- Asset constants
 
 // region: --- Game constants
+const TIME_STEP: f32 = 1. / 60.;
+const BASE_SPEED: f32 = 500.;
 // endregion: --- Game constants
 
 // region: --- Resources
