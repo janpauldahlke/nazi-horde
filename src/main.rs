@@ -5,6 +5,7 @@ use components::{Movable, Player, Velocity};
 use player::PlayerPlugin;
 
 mod components;
+mod enemy;
 mod player;
 
 // region: --- Asset constants
@@ -15,7 +16,10 @@ const PLAYER_LASER_SIZE: (f32, f32) = (9., 54.);
 
 const SPRITE_SCALE: f32 = 0.5;
 
-//const ENEMY_SPRITE: &str = "enemy_a_01.png";
+const ENEMY_SPRITE: &str = "enemy_a_01.png";
+const ENEMY_SIZE: (f32, f32) = (144., 75.);
+const ENEMY_LASER_SPRITE: &str = "enemy_laser.png";
+const ENEMY_LASER_SIZE: (f32, f32) = (9., 54.);
 // endregion: --- Asset constants
 
 // region: --- Game constants
@@ -32,6 +36,8 @@ pub struct WinSize {
 pub struct GameTextures {
     player: Handle<Image>,
     player_laser: Handle<Image>,
+    enemy: Handle<Image>,
+    enemy_laser: Handle<Image>,
 }
 // endregion: --- Resource
 
@@ -72,6 +78,8 @@ fn setup_system(
     let game_textures = GameTextures {
         player: asset_server.load(PLAYER_SPRITE),
         player_laser: asset_server.load(PLAYER_LASER_SPRITE),
+        enemy: asset_server.load(ENEMY_SPRITE),
+        enemy_laser: asset_server.load(ENEMY_LASER_SPRITE),
     };
     commands.insert_resource(game_textures);
 }
