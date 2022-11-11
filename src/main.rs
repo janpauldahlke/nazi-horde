@@ -2,6 +2,7 @@
 
 use bevy::prelude::*;
 use components::{Movable, Player, Velocity};
+use enemy::EnemyPlugin;
 use player::PlayerPlugin;
 
 mod components;
@@ -52,6 +53,7 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_plugin(PlayerPlugin)
+        .add_plugin(EnemyPlugin)
         .add_startup_system(setup_system)
         .add_system(movable_system)
         .run();
