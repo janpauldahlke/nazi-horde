@@ -17,8 +17,8 @@ const PLAYER_LASER_SIZE: (f32, f32) = (9., 54.);
 
 const SPRITE_SCALE: f32 = 0.5;
 
-const ENEMY_SPRITE: &str = "enemy_a_01.png";
-const ENEMY_SIZE: (f32, f32) = (144., 75.);
+const ENEMY_SPRITE: &str = "enemy_b.png";
+const ENEMY_SIZE: (f32, f32) = (67., 144.);
 const ENEMY_LASER_SPRITE: &str = "enemy_laser.png";
 const ENEMY_LASER_SIZE: (f32, f32) = (9., 54.);
 // endregion: --- Asset constants
