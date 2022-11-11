@@ -91,9 +91,9 @@ fn movable_system(
             const MARGIN: f32 = 200.;
 
             if translation.y > win_size.h / 2. + MARGIN
-                || translation.y < -win_size.h / 2. + MARGIN
+                || translation.y < -win_size.h / 2. - MARGIN
                 || translation.x > win_size.h / 2. + MARGIN
-                || translation.x < -win_size.h / 2. + MARGIN
+                || translation.x < -win_size.h / 2. - MARGIN
             {
                 commands.entity(entity).despawn();
             }

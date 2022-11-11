@@ -26,7 +26,7 @@ fn player_spawn_system(
         .spawn_bundle(SpriteBundle {
             texture: game_textures.player.clone(),
             transform: Transform {
-                translation: Vec3::new(0., bottom + PLAYER_SIZE.1 / 2. * SPRITE_SCALE + 5., 10.),
+                translation: Vec3::new(0., bottom + PLAYER_SIZE.1 / 2. * SPRITE_SCALE + 5., 1.),
                 scale: Vec3::new(SPRITE_SCALE, SPRITE_SCALE, 1.),
                 ..Default::default()
             },
@@ -72,20 +72,26 @@ fn player_fire_system(
     if let Ok(player_tf) = query.get_single() {
         if kb.pressed(KeyCode::Space) {
             let (x, y) = (player_tf.translation.x, player_tf.translation.y);
-            let x_offset = PLAYER_SIZE.0 / 2. * SPRITE_SCALE - 5.;
+            //let x_offset = PLAYER_SIZE.0 / 2. * SPRITE_SCALE - 15.;
+            let y_offset = PLAYER_SIZE.1 / 2. * SPRITE_SCALE;
 
-            commands
-                .spawn_bundle(SpriteBundle {
-                    texture: game_textures.player_laser.clone(),
-                    transform: Transform {
-                        translation: Vec3::new(x + x_offset, y, 0.),
-                        scale: Vec3::new(SPRITE_SCALE, SPRITE_SCALE, 1.),
+            let mut spawn_laser = |x_offset: f32| {
+                commands
+                    .spawn_bundle(SpriteBundle {
+                        texture: game_textures.player_laser.clone(),
+                        transform: Transform {
+                            translation: Vec3::new(x + x_offset, y + y_offset - 2., 2.),
+                            scale: Vec3::new(SPRITE_SCALE, SPRITE_SCALE, 1.),
+                            ..Default::default()
+                        },
                         ..Default::default()
-                    },
-                    ..Default::default()
-                })
-                .insert(Movable { auto_despawn: true })
-                .insert(Velocity { x: 0., y: 1. });
+                    })
+                    .insert(Movable { auto_despawn: true })
+                    .insert(Velocity { x: 0., y: 1. });
+            };
+
+            spawn_laser(PLAYER_SIZE.0 / 2. * SPRITE_SCALE - 47.);
+            spawn_laser(PLAYER_SIZE.0 / 2. * SPRITE_SCALE - 37.);
         }
     }
 }
