@@ -35,6 +35,11 @@ pub struct FromPlayer;
 // endregion --- Player Components
 
 // region --- Enemy Components
+
+#[derive(Component)]
+pub struct Enemy;
+
 #[derive(Component)]
 pub struct FromEnemy;
+
 // endregion --- Enemy Components

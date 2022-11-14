@@ -2,8 +2,8 @@ use bevy::{prelude::*, transform};
 
 // using strg . here in vsc to gain knowledge about imports
 use crate::{
-    components::{Movable, Player, Velocity},
-    GameTextures, WinSize, BASE_SPEED, PLAYER_SIZE, SPRITE_SCALE, TIME_STEP,
+    components::{Enemy, FromPlayer, Laser, Movable, Player, SpriteSize, Velocity},
+    GameTextures, WinSize, BASE_SPEED, PLAYER_LASER_SIZE, PLAYER_SIZE, SPRITE_SCALE, TIME_STEP,
 };
 
 pub struct PlayerPlugin;
@@ -33,6 +33,7 @@ fn player_spawn_system(
             ..Default::default()
         })
         .insert(Player)
+        .insert(SpriteSize::from(PLAYER_SIZE))
         .insert(Movable {
             auto_despawn: false,
         })
@@ -86,6 +87,8 @@ fn player_fire_system(
                         },
                         ..Default::default()
                     })
+                    .insert(FromPlayer)
+                    .insert(SpriteSize::from(PLAYER_LASER_SIZE))
                     .insert(Movable { auto_despawn: true })
                     .insert(Velocity { x: 0., y: 1. });
             };
@@ -94,4 +97,17 @@ fn player_fire_system(
             spawn_laser(PLAYER_SIZE.0 / 2. * SPRITE_SCALE - 37.);
         }
     }
+}
+
+fn player_laser_hit_enemy_system(
+    mut commands: Commands,
+    laser_query: Query<(
+        Entity,
+        &Transform,
+        &SpriteSize,
+        (With<Laser>, With<FromPlayer>),
+    )>,
+    enemy_query: Query<(Entity, &Transform, &SpriteSize), With<Enemy>>,
+) {
+    todo!(); //https://www.youtube.com/watch?v=j7qHwb7geIM
 }
