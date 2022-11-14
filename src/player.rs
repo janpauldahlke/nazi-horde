@@ -1,4 +1,4 @@
-use bevy::{prelude::*, transform};
+use bevy::{math::Vec3Swizzles, prelude::*, sprite::collide_aabb::collide, transform};
 
 // using strg . here in vsc to gain knowledge about imports
 use crate::{
@@ -97,17 +97,4 @@ fn player_fire_system(
             spawn_laser(PLAYER_SIZE.0 / 2. * SPRITE_SCALE - 37.);
         }
     }
-}
-
-fn player_laser_hit_enemy_system(
-    mut commands: Commands,
-    laser_query: Query<(
-        Entity,
-        &Transform,
-        &SpriteSize,
-        (With<Laser>, With<FromPlayer>),
-    )>,
-    enemy_query: Query<(Entity, &Transform, &SpriteSize), With<Enemy>>,
-) {
-    todo!(); //https://www.youtube.com/watch?v=j7qHwb7geIM
 }

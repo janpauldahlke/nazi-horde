@@ -12,5 +12,3 @@ dnf install rust-libudev-devel
 `cargo build`
 `cargo run`
 
-
-TODO: thou shall continuee https://youtu.be/j7qHwb7geIM?t=1246https://www.youtube.com/watch?v=j7qHwb7geIM&t=1651s

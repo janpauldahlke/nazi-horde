@@ -1,7 +1,7 @@
 #![allow(unused)] // silence warnings while dev // comment out later
 
-use bevy::prelude::*;
-use components::{Movable, Player, Velocity};
+use bevy::{math::Vec3Swizzles, prelude::*, sprite::collide_aabb::collide};
+use components::{Enemy, FromPlayer, Laser, Movable, Player, SpriteSize, Velocity};
 use enemy::EnemyPlugin;
 use player::PlayerPlugin;
 
@@ -56,6 +56,7 @@ fn main() {
         .add_plugin(EnemyPlugin)
         .add_startup_system(setup_system)
         .add_system(movable_system)
+        .add_system(player_laser_hit_enemy_system)
         .run();
 }
 
@@ -106,6 +107,45 @@ fn movable_system(
                 || translation.x < -win_size.h / 2. - MARGIN
             {
                 commands.entity(entity).despawn();
+            }
+        }
+    }
+}
+
+fn player_laser_hit_enemy_system(
+    mut commands: Commands,
+    laser_query: Query<(
+        Entity,
+        &Transform,
+        &SpriteSize,
+        (With<Laser>, With<FromPlayer>),
+    )>,
+    enemy_query: Query<(Entity, &Transform, &SpriteSize), With<Enemy>>,
+) {
+    // iteratre through lasers
+    for (laser_entity, laser_tf, laser_size, _) in laser_query.iter() {
+        //let laser_scale = Vec2::from(laser_tf.scale.xy());
+        let laser_scale: Vec2 = Vec2::from(laser_tf.scale.xy());
+        // iterate through enemies
+        for (enemy_entity, enemy_tf, enemy_size) in enemy_query.iter() {
+            let enemy_scale = Vec2::from(enemy_tf.scale.xy());
+
+            // introducing collided
+
+            // --collision logic
+            let collision = collide(
+                laser_tf.translation,
+                laser_size.0 * laser_scale,
+                enemy_tf.translation,
+                enemy_size.0 * enemy_scale,
+            );
+
+            // perform collision, if collision
+            if let Some(_) = collision {
+                //remove enemy entity using despawn
+                commands.entity(enemy_entity).despawn();
+                //remove laser
+                commands.entity(laser_entity).despawn();
             }
         }
     }
