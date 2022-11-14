@@ -53,6 +53,7 @@ pub struct Explosion;
 #[derive(Component)]
 pub struct ExplosionToSpawn(pub Vec3);
 
+#[derive(Component)]
 pub struct ExplosionTimer(pub Timer);
 
 impl Default for ExplosionTimer {

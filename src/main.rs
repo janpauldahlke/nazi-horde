@@ -1,7 +1,10 @@
 #![allow(unused)] // silence warnings while dev // comment out later
 
 use bevy::{math::Vec3Swizzles, prelude::*, sprite::collide_aabb::collide};
-use components::{Enemy, FromPlayer, Laser, Movable, Player, SpriteSize, Velocity};
+use components::{
+    Enemy, Explosion, ExplosionTimer, ExplosionToSpawn, FromPlayer, Laser, Movable, Player,
+    SpriteSize, Velocity,
+};
 use enemy::EnemyPlugin;
 use player::PlayerPlugin;
 
@@ -157,7 +160,34 @@ fn player_laser_hit_enemy_system(
                 commands.entity(enemy_entity).despawn();
                 //remove laser
                 commands.entity(laser_entity).despawn();
+                //spwan explosion
+                commands
+                    .spawn()
+                    .insert(ExplosionToSpawn(enemy_tf.translation.clone()));
             }
         }
+    }
+}
+
+fn explosion_to_spawn_system(
+    mut commands: Commands,
+    game_textures: Res<GameTextures>,
+    query: Query<(Entity, &ExplosionToSpawn)>,
+) {
+    for (explosion_spawn_entity, explosion_to_spawn) in query.iter() {
+        commands
+            .spawn_bundle(SpriteSheetBundle {
+                texture_atlas: game_textures.explosion.clone(),
+                transform: Transform {
+                    translation: explosion_to_spawn.0,
+                    ..Default::default()
+                },
+                ..Default::default()
+            })
+            .insert(Explosion)
+            .insert(ExplosionTimer::default());
+
+        // despawn the explosionToDespawn
+        commands.entity(explosion_spawn_entity).despawn();
     }
 }
