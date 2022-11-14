@@ -21,6 +21,9 @@ const ENEMY_SPRITE: &str = "enemy_b.png";
 const ENEMY_SIZE: (f32, f32) = (67., 144.);
 const ENEMY_LASER_SPRITE: &str = "enemy_laser.png";
 const ENEMY_LASER_SIZE: (f32, f32) = (9., 54.);
+
+const EXPLOSION_SHEET: &str = "explo_a_sheet.png";
+
 // endregion: --- Asset constants
 
 // region: --- Game constants
@@ -39,6 +42,7 @@ pub struct GameTextures {
     player_laser: Handle<Image>,
     enemy: Handle<Image>,
     enemy_laser: Handle<Image>,
+    explosion: Handle<TextureAtlas>,
 }
 // endregion: --- Resource
 
@@ -63,6 +67,7 @@ fn main() {
 fn setup_system(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    mut texture_atlasses: ResMut<Assets<TextureAtlas>>,
     mut windows: ResMut<Windows>,
 ) {
     // - Camera
@@ -77,12 +82,18 @@ fn setup_system(
     let win_size = WinSize { w: win_w, h: win_h };
     commands.insert_resource(win_size);
 
+    //create explosion texture
+    let texture_handle = asset_server.load(EXPLOSION_SHEET);
+    let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(64., 64.), 4, 4);
+    let explosion = texture_atlasses.add(texture_atlas);
+
     // add GameTextures resource
     let game_textures = GameTextures {
         player: asset_server.load(PLAYER_SPRITE),
         player_laser: asset_server.load(PLAYER_LASER_SPRITE),
         enemy: asset_server.load(ENEMY_SPRITE),
         enemy_laser: asset_server.load(ENEMY_LASER_SPRITE),
+        explosion,
     };
     commands.insert_resource(game_textures);
 }

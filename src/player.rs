@@ -87,6 +87,7 @@ fn player_fire_system(
                         },
                         ..Default::default()
                     })
+                    .insert(Laser)
                     .insert(FromPlayer)
                     .insert(SpriteSize::from(PLAYER_LASER_SIZE))
                     .insert(Movable { auto_despawn: true })
