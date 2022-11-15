@@ -20,8 +20,8 @@ fn enemy_spawn_system(
 ) {
     // compute random position
     let mut rng = thread_rng();
-    let w_span = win_size.w / 2. - 100.;
-    let h_span = win_size.h / 2. - 100.;
+    let w_span = win_size.w / 2. - 200.;
+    let h_span = win_size.h / 2. - 200.;
 
     let x = rng.gen_range(-w_span..w_span);
     let y = rng.gen_range(-h_span..h_span);

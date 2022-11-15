@@ -1,6 +1,6 @@
 #![allow(unused)] // silence warnings while dev // comment out later
 
-use bevy::{math::Vec3Swizzles, prelude::*, sprite::collide_aabb::collide};
+use bevy::{ecs::entity, math::Vec3Swizzles, prelude::*, sprite::collide_aabb::collide};
 use components::{
     Enemy, Explosion, ExplosionTimer, ExplosionToSpawn, FromPlayer, Laser, Movable, Player,
     SpriteSize, Velocity,
@@ -26,6 +26,7 @@ const ENEMY_LASER_SPRITE: &str = "enemy_laser.png";
 const ENEMY_LASER_SIZE: (f32, f32) = (9., 54.);
 
 const EXPLOSION_SHEET: &str = "explo_a_sheet.png";
+const EXPLOSION_LEN: usize = 16;
 
 // endregion: --- Asset constants
 
@@ -64,6 +65,8 @@ fn main() {
         .add_startup_system(setup_system)
         .add_system(movable_system)
         .add_system(player_laser_hit_enemy_system)
+        .add_system(explosion_to_spawn_system)
+        .add_system(explosion_animation_system)
         .run();
 }
 
@@ -189,5 +192,21 @@ fn explosion_to_spawn_system(
 
         // despawn the explosionToDespawn
         commands.entity(explosion_spawn_entity).despawn();
+    }
+}
+
+fn explosion_animation_system(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut query: Query<(Entity, &mut ExplosionTimer, &mut TextureAtlasSprite), With<Explosion>>,
+) {
+    for (entity, mut timer, mut sprite) in query.iter_mut() {
+        timer.0.tick(time.delta());
+        if timer.0.finished() {
+            sprite.index += 1; // how to move to next on sprite (textureatlas) index
+            if sprite.index >= EXPLOSION_LEN {
+                commands.entity(entity).despawn();
+            }
+        }
     }
 }
