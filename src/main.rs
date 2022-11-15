@@ -1,7 +1,12 @@
 #![allow(unused)] // silence warnings while dev // comment out later
 
 use bevy::{
-    ecs::entity, math::Vec3Swizzles, prelude::*, sprite::collide_aabb::collide, utils::HashSet,
+    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
+    ecs::entity,
+    math::Vec3Swizzles,
+    prelude::*,
+    sprite::collide_aabb::collide,
+    utils::HashSet,
 };
 use components::{
     Enemy, Explosion, ExplosionTimer, ExplosionToSpawn, FromPlayer, Laser, Movable, Player,
@@ -66,6 +71,8 @@ fn main() {
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
+        .add_plugin(LogDiagnosticsPlugin::default())
+        .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(PlayerPlugin)
         .add_plugin(EnemyPlugin)
         .add_startup_system(setup_system)
