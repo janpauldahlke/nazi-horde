@@ -49,7 +49,7 @@ impl FormationMaker {
                 let pivot = (rng.gen_range(-w_span..w_span), rng.gen_range(0.0..h_span));
 
                 // compute the radius
-                let radius = (rng.gen_range(80.0..150.), 100.);
+                let radius = (rng.gen_range(80.0..250.), 300.);
 
                 // compute the start angle
                 let angle = (y - pivot.1).atan2(x - pivot.0);
