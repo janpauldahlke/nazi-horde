@@ -2,15 +2,22 @@ use crate::{
     components::{Enemy, SpriteSize},
     EnemyCount, GameTextures, WinSize, ENEMY_MAX, ENEMY_SIZE, SPRITE_SCALE,
 };
-use bevy::{prelude::*, transform};
+use bevy::{prelude::*, time::FixedTimestep, transform};
 use rand::{thread_rng, Rng};
 
 pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
+        //add enemy a little bit delay to stage
+        app.add_system_set(
+            SystemSet::new()
+                .with_run_criteria(FixedTimestep::step(0.2))
+                .with_system(enemy_spawn_system),
+        );
+
         //app.add_startup_system_to_stage(StartupStage::PostStartup, enemy_spawn_system);
-        app.add_system(enemy_spawn_system);
+        //app.add_system(enemy_spawn_system);
     }
 }
 
@@ -23,8 +30,8 @@ fn enemy_spawn_system(
     if enemy_count.0 < ENEMY_MAX {
         // compute random position
         let mut rng = thread_rng();
-        let w_span = win_size.w / 2. - 200.;
-        let h_span = win_size.h / 2. - 200.;
+        let w_span = win_size.w / 2. - 220.;
+        let h_span = win_size.h / 2. - 220.;
 
         let x = rng.gen_range(-w_span..w_span);
         let y = rng.gen_range(-h_span..h_span);

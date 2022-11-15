@@ -131,7 +131,7 @@ fn movable_system(
 
         if (movable.auto_despawn) {
             // --- despwan lasers out of screen
-            const MARGIN: f32 = 200.;
+            const MARGIN: f32 = 230.;
 
             if translation.y > win_size.h / 2. + MARGIN
                 || translation.y < -win_size.h / 2. - MARGIN

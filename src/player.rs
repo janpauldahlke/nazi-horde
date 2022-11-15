@@ -41,6 +41,8 @@ fn player_spawn_system(
 }
 
 fn player_movement_system(mut query: Query<(&Velocity, &mut Transform), With<Player>>) {
+    //this is a good place to keep player inside the windo w
+
     for (velocity, mut transform) in query.iter_mut() {
         let translation = &mut transform.translation;
         translation.x += velocity.x * TIME_STEP * BASE_SPEED;
