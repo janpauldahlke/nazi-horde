@@ -35,6 +35,7 @@ const EXPLOSION_LEN: usize = 16;
 // region: --- Game constants
 const TIME_STEP: f32 = 1. / 60.;
 const BASE_SPEED: f32 = 500.;
+const ENEMY_MAX: u32 = 100;
 // endregion: --- Game constants
 
 // region: --- Resources
@@ -50,6 +51,9 @@ pub struct GameTextures {
     enemy_laser: Handle<Image>,
     explosion: Handle<TextureAtlas>,
 }
+
+pub struct EnemyCount(u32);
+pub struct KillCount(u32);
 // endregion: --- Resource
 
 fn main() {
@@ -104,6 +108,8 @@ fn setup_system(
         explosion,
     };
     commands.insert_resource(game_textures);
+    commands.insert_resource(EnemyCount(0));
+    commands.insert_resource(KillCount(0));
 }
 
 fn movable_system(
@@ -133,6 +139,8 @@ fn movable_system(
 
 fn player_laser_hit_enemy_system(
     mut commands: Commands,
+    mut enemy_count: ResMut<EnemyCount>,
+    mut kill_count: ResMut<KillCount>,
     laser_query: Query<(
         Entity,
         &Transform,
@@ -177,6 +185,8 @@ fn player_laser_hit_enemy_system(
                 //remove enemy entity using despawn
                 commands.entity(enemy_entity).despawn();
                 despawned_entities.insert(enemy_entity);
+                enemy_count.0 -= 1;
+                kill_count.0 += 1;
                 //remove laser
                 commands.entity(laser_entity).despawn();
                 despawned_entities.insert(laser_entity);
