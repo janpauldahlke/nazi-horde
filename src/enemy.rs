@@ -2,7 +2,8 @@ use std::f32::consts::PI;
 
 use crate::{
     components::{Enemy, FromEnemy, Laser, Movable, SpriteSize, Velocity},
-    EnemyCount, GameTextures, WinSize, ENEMY_LASER_SIZE, ENEMY_MAX, ENEMY_SIZE, SPRITE_SCALE,
+    EnemyCount, GameTextures, WinSize, BASE_SPEED, ENEMY_LASER_SIZE, ENEMY_MAX, ENEMY_SIZE,
+    SPRITE_SCALE, TIME_STEP,
 };
 use bevy::{ecs::schedule::ShouldRun, prelude::*, time::FixedTimestep, transform};
 use rand::{thread_rng, Rng};
@@ -21,7 +22,8 @@ impl Plugin for EnemyPlugin {
             SystemSet::new()
                 .with_run_criteria(enemy_fire_criteria)
                 .with_system(enemy_fire_system),
-        );
+        )
+        .add_system(enemy_move_system);
 
         //app.add_startup_system_to_stage(StartupStage::PostStartup, enemy_spawn_system);
         //app.add_system(enemy_spawn_system);
@@ -57,6 +59,17 @@ fn enemy_spawn_system(
             .insert(SpriteSize::from(ENEMY_SIZE));
 
         enemy_count.0 += 1;
+    }
+}
+
+//TODO: enemy out of sight is not despawning
+// all enemies share the same movement pattern
+
+fn enemy_move_system(mut query: Query<&mut Transform, With<Enemy>>) {
+    for mut transform in query.iter_mut() {
+        let translation = &mut transform.translation;
+        translation.x += BASE_SPEED * TIME_STEP / 4.; //-->slow
+        translation.y += BASE_SPEED * TIME_STEP / 4.; //-->slow
     }
 }
 

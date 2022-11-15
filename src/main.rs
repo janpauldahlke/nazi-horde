@@ -23,7 +23,7 @@ mod player;
 const PLAYER_SPRITE: &str = "black_jesus.png";
 const PLAYER_SIZE: (f32, f32) = (144., 177.);
 const PLAYER_LASER_SPRITE: &str = "player_laser.png";
-const PLAYER_LASER_SIZE: (f32, f32) = (9., 54.);
+const PLAYER_LASER_SIZE: (f32, f32) = (9., 9.);
 const PLAYER_RESPAWN_DELAY: f64 = 1.;
 
 const SPRITE_SCALE: f32 = 0.5;
