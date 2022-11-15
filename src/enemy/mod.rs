@@ -8,7 +8,7 @@ use crate::{
 use bevy::{ecs::schedule::ShouldRun, prelude::*, time::FixedTimestep, transform};
 use rand::{thread_rng, Rng};
 
-use self::formation::FormationMaker;
+use self::formation::{Formation, FormationMaker};
 
 mod formation;
 
@@ -39,16 +39,13 @@ fn enemy_spawn_system(
     mut commands: Commands,
     game_textures: Res<GameTextures>,
     mut enemy_count: ResMut<EnemyCount>,
+    mut formation_maker: ResMut<FormationMaker>,
     win_size: Res<WinSize>,
 ) {
     if enemy_count.0 < ENEMY_MAX {
-        // compute random position
-        let mut rng = thread_rng();
-        let w_span = win_size.w / 2. - 220.;
-        let h_span = win_size.h / 2. - 220.;
-
-        let x = rng.gen_range(-w_span..w_span);
-        let y = rng.gen_range(-h_span..h_span);
+        /// get formation and start x/y
+        let formation = formation_maker.make(&win_size);
+        let (x, y) = formation.start;
 
         commands
             .spawn_bundle(SpriteBundle {
@@ -61,6 +58,7 @@ fn enemy_spawn_system(
                 ..Default::default()
             })
             .insert(Enemy)
+            .insert(formation)
             .insert(SpriteSize::from(ENEMY_SIZE));
 
         enemy_count.0 += 1;
@@ -70,23 +68,27 @@ fn enemy_spawn_system(
 //TODO: enemy out of sight is not despawning
 // all enemies share the same movement pattern
 
-fn enemy_move_system(time: Res<Time>, mut query: Query<&mut Transform, With<Enemy>>) {
+fn enemy_move_system(
+    time: Res<Time>,
+    mut query: Query<(&mut Transform, &mut Formation), With<Enemy>>,
+) {
     let now = time.seconds_since_startup() as f32; // casting;
-    for mut transform in query.iter_mut() {
+    for (mut transform, mut formation) in query.iter_mut() {
         //current position
         let (x_org, y_org) = (transform.translation.x, transform.translation.y);
 
         //max distance
-        let max_distance = TIME_STEP * BASE_SPEED;
+        let max_distance = TIME_STEP * formation.speed;
 
         //fixtures, hardcoded for now
 
-        let dir: f32 = -1.; //  1 counter clockwise,  -1 clockwise
-        let (x_pivot, y_pivot) = (0., 0.);
-        let (x_radius, y_radius) = (200., 130.); //kind of ellipse shape
+        let dir: f32 = if formation.start.0 < 0. { 1. } else { -1. }; //  1 counter clockwise,  -1 clockwise
+        let (x_pivot, y_pivot) = formation.pivot;
+        let (x_radius, y_radius) = formation.radius; //kind of ellipse shape
 
         //compute next angle (based on time for now)
-        let angle = dir * BASE_SPEED * TIME_STEP * now % 360. / PI;
+        let angle = formation.angle
+            + dir * formation.speed * TIME_STEP / (x_radius.min(y_radius) * PI / 2.);
 
         // compute target x/y
         let x_dst = x_radius * angle.cos() + x_pivot;
@@ -109,6 +111,12 @@ fn enemy_move_system(time: Res<Time>, mut query: Query<&mut Transform, With<Enem
         let y = y_org - dy * distance_ratio;
         //shallow again
         let y = if dy > 0. { y.max(y_dst) } else { y.min(y_dst) };
+
+        // start rotating the formation angle only when sprite iis on or close to ellipse
+        if distance < max_distance * formation.speed / 20. {
+            formation.angle = angle;
+        }
+
         let translation = &mut transform.translation;
         (translation.x, translation.y) = (x, y);
     }
