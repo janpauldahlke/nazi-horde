@@ -1,6 +1,8 @@
 #![allow(unused)] // silence warnings while dev // comment out later
 
-use bevy::{ecs::entity, math::Vec3Swizzles, prelude::*, sprite::collide_aabb::collide};
+use bevy::{
+    ecs::entity, math::Vec3Swizzles, prelude::*, sprite::collide_aabb::collide, utils::HashSet,
+};
 use components::{
     Enemy, Explosion, ExplosionTimer, ExplosionToSpawn, FromPlayer, Laser, Movable, Player,
     SpriteSize, Velocity,
@@ -139,16 +141,29 @@ fn player_laser_hit_enemy_system(
     )>,
     enemy_query: Query<(Entity, &Transform, &SpriteSize), With<Enemy>>,
 ) {
+    // helper avoids despawning multiple times
+    // cross check against another set to avoid double destroy on no longer existing entity
+    let mut despawned_entities: HashSet<Entity> = HashSet::new();
+
     // iteratre through lasers
     for (laser_entity, laser_tf, laser_size, _) in laser_query.iter() {
+        if despawned_entities.contains(&laser_entity) {
+            continue;
+        }
+
         //let laser_scale = Vec2::from(laser_tf.scale.xy());
         let laser_scale: Vec2 = Vec2::from(laser_tf.scale.xy());
         // iterate through enemies
         for (enemy_entity, enemy_tf, enemy_size) in enemy_query.iter() {
+            if despawned_entities.contains(&enemy_entity)
+                || despawned_entities.contains(&laser_entity)
+            {
+                continue;
+            }
+
             let enemy_scale = Vec2::from(enemy_tf.scale.xy());
 
             // introducing collided
-
             // --collision logic
             let collision = collide(
                 laser_tf.translation,
@@ -161,8 +176,10 @@ fn player_laser_hit_enemy_system(
             if let Some(_) = collision {
                 //remove enemy entity using despawn
                 commands.entity(enemy_entity).despawn();
+                despawned_entities.insert(enemy_entity);
                 //remove laser
                 commands.entity(laser_entity).despawn();
+                despawned_entities.insert(laser_entity);
                 //spwan explosion
                 commands
                     .spawn()
