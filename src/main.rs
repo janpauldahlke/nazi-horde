@@ -42,6 +42,7 @@ const EXPLOSION_LEN: usize = 16;
 const TIME_STEP: f32 = 1. / 60.;
 const BASE_SPEED: f32 = 500.;
 const ENEMY_MAX: u32 = 10;
+const FORMATION_MEMBERS_MAX: u32 = 10;
 // endregion: --- Game constants
 
 // region: --- Resources

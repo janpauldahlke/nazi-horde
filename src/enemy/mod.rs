@@ -8,22 +8,27 @@ use crate::{
 use bevy::{ecs::schedule::ShouldRun, prelude::*, time::FixedTimestep, transform};
 use rand::{thread_rng, Rng};
 
+use self::formation::FormationMaker;
+
+mod formation;
+
 pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         //add enemy a little bit delay to stage
-        app.add_system_set(
-            SystemSet::new()
-                .with_run_criteria(FixedTimestep::step(0.2))
-                .with_system(enemy_spawn_system),
-        )
-        .add_system_set(
-            SystemSet::new()
-                .with_run_criteria(enemy_fire_criteria)
-                .with_system(enemy_fire_system),
-        )
-        .add_system(enemy_move_system);
+        app.insert_resource(FormationMaker::default())
+            .add_system_set(
+                SystemSet::new()
+                    .with_run_criteria(FixedTimestep::step(0.2))
+                    .with_system(enemy_spawn_system),
+            )
+            .add_system_set(
+                SystemSet::new()
+                    .with_run_criteria(enemy_fire_criteria)
+                    .with_system(enemy_fire_system),
+            )
+            .add_system(enemy_move_system);
 
         //app.add_startup_system_to_stage(StartupStage::PostStartup, enemy_spawn_system);
         //app.add_system(enemy_spawn_system);
@@ -65,11 +70,47 @@ fn enemy_spawn_system(
 //TODO: enemy out of sight is not despawning
 // all enemies share the same movement pattern
 
-fn enemy_move_system(mut query: Query<&mut Transform, With<Enemy>>) {
+fn enemy_move_system(time: Res<Time>, mut query: Query<&mut Transform, With<Enemy>>) {
+    let now = time.seconds_since_startup() as f32; // casting;
     for mut transform in query.iter_mut() {
+        //current position
+        let (x_org, y_org) = (transform.translation.x, transform.translation.y);
+
+        //max distance
+        let max_distance = TIME_STEP * BASE_SPEED;
+
+        //fixtures, hardcoded for now
+
+        let dir: f32 = -1.; //  1 counter clockwise,  -1 clockwise
+        let (x_pivot, y_pivot) = (0., 0.);
+        let (x_radius, y_radius) = (200., 130.); //kind of ellipse shape
+
+        //compute next angle (based on time for now)
+        let angle = dir * BASE_SPEED * TIME_STEP * now % 360. / PI;
+
+        // compute target x/y
+        let x_dst = x_radius * angle.cos() + x_pivot;
+        let y_dst = y_radius * angle.cos() + y_pivot;
+
+        // compute distance
+        let dx = x_org - x_dst;
+        let dy = y_org - y_dst;
+        let distance = (dx * dx + dy * dy).sqrt();
+        let distance_ratio = if distance != 0. {
+            max_distance / distance
+        } else {
+            0.
+        };
+
+        // compute final x/y
+        let x = x_org - dx * distance_ratio;
+        //shallow
+        let x = if dx > 0. { x.max(x_dst) } else { x.min(x_dst) };
+        let y = y_org - dy * distance_ratio;
+        //shallow again
+        let y = if dy > 0. { y.max(y_dst) } else { y.min(y_dst) };
         let translation = &mut transform.translation;
-        translation.x += BASE_SPEED * TIME_STEP / 4.; //-->slow
-        translation.y += BASE_SPEED * TIME_STEP / 4.; //-->slow
+        (translation.x, translation.y) = (x, y);
     }
 }
 
