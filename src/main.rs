@@ -24,6 +24,7 @@ const PLAYER_SPRITE: &str = "black_jesus.png";
 const PLAYER_SIZE: (f32, f32) = (144., 177.);
 const PLAYER_LASER_SPRITE: &str = "player_laser.png";
 const PLAYER_LASER_SIZE: (f32, f32) = (9., 54.);
+const PLAYER_RESPAWN_DELAY: f64 = 1.;
 
 const SPRITE_SCALE: f32 = 0.5;
 
@@ -40,7 +41,7 @@ const EXPLOSION_LEN: usize = 16;
 // region: --- Game constants
 const TIME_STEP: f32 = 1. / 60.;
 const BASE_SPEED: f32 = 500.;
-const ENEMY_MAX: u32 = 100;
+const ENEMY_MAX: u32 = 10;
 // endregion: --- Game constants
 
 // region: --- Resources
@@ -58,6 +59,32 @@ pub struct GameTextures {
 }
 
 pub struct EnemyCount(u32);
+pub struct PlayerState {
+    on: bool,       // is alive
+    last_shot: f64, // -1 if not shot
+}
+
+//how to apply a default for PlayerState
+impl Default for PlayerState {
+    fn default() -> Self {
+        Self {
+            on: false,
+            last_shot: -1.,
+        }
+    }
+}
+
+// add more fucntionality to PlayerState
+impl PlayerState {
+    pub fn shot(&mut self, time: f64) {
+        self.on = false;
+        self.last_shot = time;
+    }
+    pub fn spawned(&mut self) {
+        self.on = true;
+        self.last_shot = -1.;
+    }
+}
 pub struct KillCount(u32);
 // endregion: --- Resource
 
@@ -147,6 +174,8 @@ fn movable_system(
 
 fn enemy_laser_hit_player_system(
     mut commands: Commands,
+    mut player_state: ResMut<PlayerState>,
+    time: Res<Time>,
     laser_query: Query<(
         Entity,
         &Transform,
@@ -173,6 +202,7 @@ fn enemy_laser_hit_player_system(
             if let Some(_) = collision {
                 // remove player
                 commands.entity(player_entity).despawn();
+                player_state.shot(time.seconds_since_startup());
                 // remove laser
                 commands.entity(laser_entity).despawn();
 
