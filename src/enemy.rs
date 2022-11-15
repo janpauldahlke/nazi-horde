@@ -1,6 +1,6 @@
 use crate::{
-    components::{Enemy, SpriteSize},
-    EnemyCount, GameTextures, WinSize, ENEMY_MAX, ENEMY_SIZE, SPRITE_SCALE,
+    components::{Enemy, FromEnemy, Laser, Movable, SpriteSize, Velocity},
+    EnemyCount, GameTextures, WinSize, ENEMY_LASER_SIZE, ENEMY_MAX, ENEMY_SIZE, SPRITE_SCALE,
 };
 use bevy::{prelude::*, time::FixedTimestep, transform};
 use rand::{thread_rng, Rng};
@@ -14,7 +14,8 @@ impl Plugin for EnemyPlugin {
             SystemSet::new()
                 .with_run_criteria(FixedTimestep::step(0.2))
                 .with_system(enemy_spawn_system),
-        );
+        )
+        .add_system(enemy_fire_system);
 
         //app.add_startup_system_to_stage(StartupStage::PostStartup, enemy_spawn_system);
         //app.add_system(enemy_spawn_system);
@@ -50,5 +51,32 @@ fn enemy_spawn_system(
             .insert(SpriteSize::from(ENEMY_SIZE));
 
         enemy_count.0 += 1;
+    }
+}
+
+fn enemy_fire_system(
+    mut commands: Commands,
+    game_textures: Res<GameTextures>,
+    enemy_query: Query<&Transform, With<Enemy>>,
+) {
+    for &tf in enemy_query.iter() {
+        //spawn enemy laser
+        let (x, y) = (tf.translation.x, tf.translation.y);
+        commands
+            .spawn_bundle(SpriteBundle {
+                texture: game_textures.enemy_laser.clone(),
+                transform: Transform {
+                    translation: Vec3::new(x, y - 15., 0.),
+                    scale: Vec3::new(SPRITE_SCALE, SPRITE_SCALE, 1.),
+                    ..Default::default()
+                },
+                ..Default::default()
+            })
+            .insert(Laser)
+            .insert(SpriteSize::from(ENEMY_LASER_SIZE))
+            .insert(FromEnemy)
+            .insert(Movable { auto_despawn: true })
+            //make laser fall down
+            .insert(Velocity { x: 0., y: -1. });
     }
 }

@@ -28,9 +28,9 @@ const PLAYER_LASER_SIZE: (f32, f32) = (9., 54.);
 const SPRITE_SCALE: f32 = 0.5;
 
 const ENEMY_SPRITE: &str = "enemy_b.png";
-const ENEMY_SIZE: (f32, f32) = (67., 144.);
+const ENEMY_SIZE: (f32, f32) = (67., 67.);
 const ENEMY_LASER_SPRITE: &str = "enemy_laser.png";
-const ENEMY_LASER_SIZE: (f32, f32) = (9., 54.);
+const ENEMY_LASER_SIZE: (f32, f32) = (10., 10.);
 
 const EXPLOSION_SHEET: &str = "explo_a_sheet.png";
 const EXPLOSION_LEN: usize = 16;
