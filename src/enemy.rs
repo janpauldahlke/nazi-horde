@@ -1,8 +1,10 @@
+use std::f32::consts::PI;
+
 use crate::{
     components::{Enemy, FromEnemy, Laser, Movable, SpriteSize, Velocity},
     EnemyCount, GameTextures, WinSize, ENEMY_LASER_SIZE, ENEMY_MAX, ENEMY_SIZE, SPRITE_SCALE,
 };
-use bevy::{prelude::*, time::FixedTimestep, transform};
+use bevy::{ecs::schedule::ShouldRun, prelude::*, time::FixedTimestep, transform};
 use rand::{thread_rng, Rng};
 
 pub struct EnemyPlugin;
@@ -15,7 +17,11 @@ impl Plugin for EnemyPlugin {
                 .with_run_criteria(FixedTimestep::step(0.2))
                 .with_system(enemy_spawn_system),
         )
-        .add_system(enemy_fire_system);
+        .add_system_set(
+            SystemSet::new()
+                .with_run_criteria(enemy_fire_criteria)
+                .with_system(enemy_fire_system),
+        );
 
         //app.add_startup_system_to_stage(StartupStage::PostStartup, enemy_spawn_system);
         //app.add_system(enemy_spawn_system);
@@ -54,6 +60,15 @@ fn enemy_spawn_system(
     }
 }
 
+fn enemy_fire_criteria() -> ShouldRun {
+    // 60. is kinda magic number for framerate equivalent
+    if thread_rng().gen_bool(1. / 60.) {
+        ShouldRun::Yes
+    } else {
+        ShouldRun::No
+    }
+}
+
 fn enemy_fire_system(
     mut commands: Commands,
     game_textures: Res<GameTextures>,
@@ -67,6 +82,7 @@ fn enemy_fire_system(
                 texture: game_textures.enemy_laser.clone(),
                 transform: Transform {
                     translation: Vec3::new(x, y - 15., 0.),
+                    rotation: Quat::from_rotation_x(PI),
                     scale: Vec3::new(SPRITE_SCALE, SPRITE_SCALE, 1.),
                     ..Default::default()
                 },

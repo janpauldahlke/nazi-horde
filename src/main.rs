@@ -9,8 +9,8 @@ use bevy::{
     utils::HashSet,
 };
 use components::{
-    Enemy, Explosion, ExplosionTimer, ExplosionToSpawn, FromPlayer, Laser, Movable, Player,
-    SpriteSize, Velocity,
+    Enemy, Explosion, ExplosionTimer, ExplosionToSpawn, FromEnemy, FromPlayer, Laser, Movable,
+    Player, SpriteSize, Velocity,
 };
 use enemy::EnemyPlugin;
 use player::PlayerPlugin;
@@ -78,6 +78,7 @@ fn main() {
         .add_startup_system(setup_system)
         .add_system(movable_system)
         .add_system(player_laser_hit_enemy_system)
+        .add_system(enemy_laser_hit_player_system)
         .add_system(explosion_to_spawn_system)
         .add_system(explosion_animation_system)
         .run();
@@ -139,6 +140,49 @@ fn movable_system(
                 || translation.x < -win_size.h / 2. - MARGIN
             {
                 commands.entity(entity).despawn();
+            }
+        }
+    }
+}
+
+fn enemy_laser_hit_player_system(
+    mut commands: Commands,
+    laser_query: Query<(
+        Entity,
+        &Transform,
+        &SpriteSize,
+        (With<Laser>, With<FromEnemy>),
+    )>,
+    player_query: Query<(Entity, &Transform, &SpriteSize), With<Player>>,
+) {
+    if let Ok((player_entity, player_tf, player_size)) = player_query.get_single() {
+        let player_scale = Vec2::from(player_tf.scale.xy());
+
+        for (laser_entity, laser_tf, laser_size, _) in laser_query.iter() {
+            let laser_scale = Vec2::from(laser_tf.scale.xy());
+
+            //check for collision
+            let collision = collide(
+                laser_tf.translation,
+                laser_size.0 * laser_scale,
+                player_tf.translation,
+                player_size.0 * player_scale,
+            );
+
+            // perform collision
+            if let Some(_) = collision {
+                // remove player
+                commands.entity(player_entity).despawn();
+                // remove laser
+                commands.entity(laser_entity).despawn();
+
+                //create explosion at player
+                commands
+                    .spawn()
+                    .insert(ExplosionToSpawn(player_tf.translation.clone()));
+
+                //breaks gameloop
+                break;
             }
         }
     }
