@@ -1,6 +1,4 @@
-#### killing peeps with bevy and rust in A GAME
-
-Credit to the [JeremyCohne](https://www.youtube.com/watch?v=j7qHwb7geIM&t=65s)
+#### killing young adoof hitler with bevy and rust in A GAME
 
 #### prequisites for fedora 36
 ```
