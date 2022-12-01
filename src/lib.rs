@@ -14,6 +14,7 @@ use components::{
 };
 use enemy::EnemyPlugin;
 use player::PlayerPlugin;
+use wasm_bindgen::prelude::*;
 
 mod components;
 mod enemy;
@@ -31,7 +32,7 @@ const SPRITE_SCALE: f32 = 0.5;
 const ENEMY_SPRITE: &str = "enemy_b.png";
 const ENEMY_SIZE: (f32, f32) = (67., 67.);
 const ENEMY_LASER_SPRITE: &str = "enemy_laser.png";
-const ENEMY_LASER_SIZE: (f32, f32) = (10., 10.);
+const ENEMY_LASER_SIZE: (f32, f32) = (15., 15.);
 
 const EXPLOSION_SHEET: &str = "explo_a_sheet.png";
 const EXPLOSION_LEN: usize = 16;
@@ -41,8 +42,8 @@ const EXPLOSION_LEN: usize = 16;
 // region: --- Game constants
 const TIME_STEP: f32 = 1. / 60.;
 const BASE_SPEED: f32 = 300.;
-const ENEMY_MAX: u32 = 2;
-const FORMATION_MEMBERS_MAX: u32 = 2;
+const ENEMY_MAX: u32 = 100;
+const FORMATION_MEMBERS_MAX: u32 = 10;
 // endregion: --- Game constants
 
 // region: --- Resources
@@ -93,9 +94,9 @@ fn main() {
     App::new()
         .insert_resource(ClearColor(Color::rgb(0.04, 0.04, 0.04)))
         .insert_resource(WindowDescriptor {
-            title: "<---- BJ vs. infinite Hitlers ---->".to_string(),
-            width: 1920.0,
-            height: 1080.0,
+            title: "Black Jesus vs. respawning Hitlers".to_string(),
+            width: 1280.0,
+            height: 720.0,
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
@@ -200,21 +201,21 @@ fn enemy_laser_hit_player_system(
             );
 
             // perform collision
-            if let Some(_) = collision {
-                // remove player
-                commands.entity(player_entity).despawn();
-                player_state.shot(time.seconds_since_startup());
-                // remove laser
-                commands.entity(laser_entity).despawn();
+            //if let Some(_) = collision {
+            // remove player
+            //commands.entity(player_entity).despawn();
+            //player_state.shot(time.seconds_since_startup());
+            // remove laser
+            //commands.entity(laser_entity).despawn();
 
-                //create explosion at player
-                commands
-                    .spawn()
-                    .insert(ExplosionToSpawn(player_tf.translation.clone()));
+            //create explosion at player
+            //commands
+            //    .spawn()
+            //    .insert(ExplosionToSpawn(player_tf.translation.clone()));
 
-                //breaks gameloop
-                break;
-            }
+            //breaks gameloop
+            //break;
+            //}
         }
     }
 }

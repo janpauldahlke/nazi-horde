@@ -8,6 +8,7 @@ dnf install rust-libudev-devel
 ```
 
 
-`cargo build`
-`cargo run`
+`cargo build`  
+`cargo run`  
+`cargo build --release --target wasm32-unknown-unknown`   target wasm
 
